@@ -118,6 +118,34 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameTimer());
     }
 
+    public void StopGame()
+    {
+        if (gameType != GameType.None)
+        {
+            StopAllCoroutines();
+            if (temp != null)
+            {
+                Destroy(temp);
+                temp = null;
+            }
+
+            Destroy(gameObjectGroupCurr);
+            gameObjectGroupCurr = null;
+
+            gameComponents[(int)gameType].gameGroup.SetActive(false);
+            gameComponents[(int)gameType].timerPanel.SetActive(false);
+            gameComponents[(int)gameType].gameScore = 0;
+
+            foreach (GameComponent component in gameComponents)
+            {
+                component.gameCanvas.SetActive(true);
+            }
+
+            gameType = GameType.None;
+            globalTime = 0;
+        }
+    }
+
     public void GrabCurrentBall(Transform attachPoint)
     {
         if (gameObjectGroupCurr == null) return;

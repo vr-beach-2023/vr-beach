@@ -27,6 +27,8 @@ public class VideoPlaylistHandler : MonoBehaviour
     [Header("Addon Component For 360 Player")]
     public int lineInteractorLength;
     public int lineInteractorLengthTemp;
+    public PositionName posTargetName;
+    public Rigidbody playerRB;
     public VideoLinkHandler threeSixtyLinkHandler;
     public ThreeSixtyVideoPlayer threeSixtyVideoPlayer;
     public Transform threeSixtyPlayerPos;
@@ -176,7 +178,8 @@ public class VideoPlaylistHandler : MonoBehaviour
                     xRInteractorLineVisuals[i].lineLength = lineInteractorLength;
                 }
 
-                //CommonScript.instance.ChangeScene("360 Video Player");
+                CommonScript.instance.position = posTargetName;
+                playerRB.isKinematic = true;
             });
 
             index++;
