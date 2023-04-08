@@ -53,7 +53,7 @@ public class VideoPlaylistHandler : MonoBehaviour
         }
     }
 
-    public IEnumerator InitializeVideoPlayer(bool isUrl, string url, VideoClip clip, UnityEvent events)
+    public IEnumerator InitializeVideoPlayer(bool isUrl, string url, YoutubeLinkDetail fileDetail, VideoClip clip, UnityEvent events)
     {
         videoListPanel.SetActive(false);
         basicVideoPlayer.SetActive(true);
@@ -76,14 +76,15 @@ public class VideoPlaylistHandler : MonoBehaviour
 
         if (!basicVideoPlayer.GetComponent<BasicVideoPlayer>().videoPlayer.isPlaying)
         {
-            Debug.Log("Video corrupted!");
+            fileDetail.downloadProgressText.text = "File is Corrupted\nRe-downloading...";
+            yield return new WaitForSeconds(1f);
             basicVideoPlayer.SetActive(false);
             videoListPanel.SetActive(true);
             events.Invoke();
         }
         else
         {
-            Debug.Log("Video played!");
+            fileDetail.playButton.interactable = true;
         }
     }
 
@@ -102,6 +103,7 @@ public class VideoPlaylistHandler : MonoBehaviour
             obj.transform.localScale = templateList.transform.localScale;
             obj.transform.localRotation = templateList.transform.localRotation;
 
+            list.playButton = obj.GetComponentInChildren<Button>();
             list.downloadProgressText = obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             if (!File.Exists(Path.Combine(rootPath, list.videoTitle + ".mp4"))) { list.downloadProgressText.text = "0%"; }
             else { list.downloadProgressText.text = "100%"; }
@@ -116,8 +118,10 @@ public class VideoPlaylistHandler : MonoBehaviour
                     UnityEvent eventWhenNotExists = new UnityEvent();
 
                     string filePath = Path.Combine(rootPath, list.videoTitle + ".mp4");
-                    eventWhenExists.AddListener(() => StartCoroutine(InitializeVideoPlayer(true, filePath, null, eventWhenNotExists)));
+                    eventWhenExists.AddListener(() => StartCoroutine(InitializeVideoPlayer(true, filePath, list, null, eventWhenNotExists)));
                     eventWhenNotExists.AddListener(() => FileDownloader(list, eventWhenExists));
+                    list.downloadProgressText.text = "Please Wait...";
+                    list.playButton.interactable = false;
 
                     if (!File.Exists(Path.Combine(rootPath, list.videoTitle + ".mp4")))
                     {
@@ -125,17 +129,17 @@ public class VideoPlaylistHandler : MonoBehaviour
                     }
                     else
                     {
-                        StartCoroutine(InitializeVideoPlayer(true, filePath, null, eventWhenNotExists));
+                        StartCoroutine(InitializeVideoPlayer(true, filePath, list, null, eventWhenNotExists));
                     }
                 }
-                else if (list.isLocalFile)
-                {
-                    StartCoroutine(InitializeVideoPlayer(false, null, list.videoClip, null));
-                }
-                else if (list.isStreaming)
-                {
-                    StartCoroutine(InitializeVideoPlayer(true, list.convertedUrl, null, null));
-                }
+                //else if (list.isLocalFile)
+                //{
+                //    StartCoroutine(InitializeVideoPlayer(false, null, list, list.videoClip, null));
+                //}
+                //else if (list.isStreaming)
+                //{
+                //    StartCoroutine(InitializeVideoPlayer(true, list.convertedUrl, list, null, null));
+                //}
             });
 
             index++;
@@ -156,6 +160,9 @@ public class VideoPlaylistHandler : MonoBehaviour
             obj.transform.localPosition = templateList.transform.localPosition;
             obj.transform.localScale = templateList.transform.localScale;
             obj.transform.localRotation = templateList.transform.localRotation;
+
+            list.downloadProgressText = obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            list.downloadProgressText.text = string.Empty;
 
             obj.GetComponentInChildren<TextMeshProUGUI>().text = $"{index + 1} | {list.videoTitle}";
             obj.GetComponentInChildren<Button>().onClick.AddListener(delegate

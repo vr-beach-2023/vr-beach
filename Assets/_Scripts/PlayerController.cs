@@ -6,8 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Vector2 playerVelocity;
-    [SerializeField] private float playerSpeed = 10f;
-    [SerializeField] private float playerRotate = 20f;
+    [SerializeField] private float playerSpeed = 3.5f;
+    [SerializeField] private float playerRotate = 35f;
 
     void Update()
     {
